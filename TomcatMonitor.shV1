@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e
+set -x
+
+LOGNAME="/home/tomcat_monitor.log"
+TOMCATNMAE=tomcat2
+
+if [[ ! -f ${LOGNAME} ]];then
+	touch ${LOGNAME}
+fi	
+
+proc_num()
+{
+        number=$(ps -ef | grep ${TOMCATNMAE} | grep -v grep | wc -l)
+}
+
+proc_id()
+{
+        current_pid=$(ps -ef | grep ${TOMCATNMAE} | grep -v grep | awk '{print $2}')
+}
+
+while :
+do
+
+	proc_num
+
+        if [ $number -eq 0 ]; then
+                cd /usr/local/tomcat8/bin/ 
+		./startup.sh
+
+		proc_id
+
+                echo "[ $(date) ] ${TOMCATNMAE} is Restarted" >>  ${LOGNAME}
+                echo "After the restart,the PID is ${current_pid}" >>  ${LOGNAME}
+        fi
+
+        sleep 10s
+done
+~    
